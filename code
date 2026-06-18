@@ -1,0 +1,55 @@
+
+#include <Wire.h>
+#include <BH1750.h>
+
+#define LED_PIN_2 13
+#define LED_PIN_1 23
+
+BH1750 lightMeter;
+
+void setup() {
+  Serial.begin(9600);
+
+  Wire.begin(21, 22);   // SDA, SCL
+
+  pinMode(LED_PIN_1, OUTPUT);
+  pinMode(LED_PIN_2, OUTPUT);
+
+  if (lightMeter.begin()) {
+    Serial.println("BH1750 sensor detected");
+  } else {
+    Serial.println("BH1750 not detected");
+    while (1);
+  }
+}
+
+void loop() {
+  float lux = lightMeter.readLightLevel();
+
+  Serial.print("Light: ");
+  Serial.print(lux);
+  Serial.print(" lx");
+
+  // Turn LEDs OFF first
+  digitalWrite(LED_PIN_1, LOW);
+  digitalWrite(LED_PIN_2, LOW);
+
+  if (lux < 10) {
+    digitalWrite(LED_PIN_1, HIGH);
+    digitalWrite(LED_PIN_2, HIGH);
+    Serial.println(" => Dark, TWO LEDs ON");
+
+  } else if (lux < 100) {
+    digitalWrite(LED_PIN_2, HIGH);
+    Serial.println(" => Dim, ONE LED ON");
+
+  } else if (lux < 500) {
+    digitalWrite(LED_PIN_1, HIGH);
+    Serial.println(" => Light, ONE LED ON");
+
+  } else {
+    Serial.println(" => Bright, TWO LEDs OFF");
+  }
+
+  delay(1500);
+}
